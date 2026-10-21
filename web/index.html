@@ -1,33 +1,40 @@
-<script type="module">
-    import { WASI } from 'https://cdn.jsdelivr.net/npm/@bjorn3/browser_wasi_shim@0.3.0/+esm';
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Haskell WASM Hello</title>
 
-    const wasi = new WASI([], [], []);
-    const wasm = await WebAssembly.compileStreaming(fetch("haskell-wasm.wasm"));
+    <style>
+        body {
+            font-family: sans-serif;
+            max-width: 500px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
 
-    const inst = await WebAssembly.instantiate(wasm, {
-        "wasi_snapshot_preview1": wasi.wasiImport,
-    });
+        input, button {
+            font-size: 1rem;
+            padding: 0.5rem;
+        }
 
-    function callWithString(func, str) {
-        const encoder = new TextEncoder();
-        const decoder = new TextDecoder("utf8");
+        #output {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Haskell WebAssembly demo</h1>
 
-        const encoded = encoder.encode(str + '\0'); // Null-terminated string
-        const ptr = inst.exports.callocBuffer(encoded.length);
-        new Uint8Array(inst.exports.memory.buffer, ptr, encoded.length).set(encoded);
+    <label for="name">Name:</label>
+    <input id="name" type="text" value="John" placeholder="Enter your name" />
+    <button id="helloButton" type="button">Say hello</button>
 
-        const resultPtr = func(ptr);
-        const resultBytes = new Uint8Array(inst.exports.memory.buffer, resultPtr);
-        const length = resultBytes.findIndex(b => b === 0);
-        const result = decoder.decode(new Uint8Array(inst.exports.memory.buffer, resultPtr, length));
+    <p id="output"></p>
 
-        inst.exports.freeBuffer(ptr);
-        inst.exports.freeBuffer(resultPtr);
-
-        return result;
-    }
-
-    wasi.initialize(inst);
-    inst.exports.hs_init(0, 0);
-    console.log(callWithString(inst.exports.hs_sayHello, "John")); // Outputs: Hello, John
-</script>
+    <!-- type="module" permits imports in app.js -->
+    <script type="module" src="./app.js"></script>
+</body>
+</html>
