@@ -1,3 +1,6 @@
+*.wasm
+
+
 dist
 dist-*
 cabal-dev
