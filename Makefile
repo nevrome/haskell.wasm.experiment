@@ -7,7 +7,7 @@ wasm:
 	cp "$$(cabal list-bin --project-file=cabal.project.wasm exe:butterflybone)" "$(WASM_OUT)"
 
 serve: wasm
-	cd web && python3 -m http.server 8000
+	cd web && python3 server.py 8000
 
 clean:
 	cabal clean
