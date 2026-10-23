@@ -38,6 +38,6 @@ executable butterflybone
     ghc-options:
         -optl-mexec-model=reactor
         -optl-Wl,--export=hs_init
-        -optl-Wl,--export=hs_sayHello
+        -optl-Wl,--export=hs_processPages
         -optl-Wl,--export=callocBuffer
         -optl-Wl,--export=freeBuffer

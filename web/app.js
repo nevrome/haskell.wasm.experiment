@@ -102,6 +102,7 @@ async function downloadSeries(startUrl) {
         pages.push(content);
         
         // check if content is same as previous
+        // TODO: This does not work as a stop condition!
         if (previousContent !== null && content === previousContent) {
             status.textContent = `Stopped: page ${i + 1} has same content as page ${i}`;
             break;
