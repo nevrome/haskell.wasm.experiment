@@ -6,7 +6,7 @@ const output = document.getElementById("output");
 
 const wasi = new WASI([], [], []);
 
-// This path is relative to app.js, which is also in web/.
+// this path is relative to app.js, which is also in web/
 const wasm = await WebAssembly.compileStreaming(
     fetch("./haskell-wasm.wasm")
 );
@@ -22,10 +22,10 @@ function callWithString(func, str) {
     const encoder = new TextEncoder();
     const decoder = new TextDecoder("utf-8");
 
-    // Convert JavaScript text to a null-terminated UTF-8 C string.
+    // convert JavaScript text to a null-terminated UTF-8 C string
     const encoded = encoder.encode(str + "\0");
 
-    // Allocate space in the WASM/Haskell heap.
+    // allocate space in the WASM/Haskell heap
     const inputPtr = inst.exports.callocBuffer(encoded.length);
 
     new Uint8Array(
@@ -34,10 +34,10 @@ function callWithString(func, str) {
         encoded.length
     ).set(encoded);
 
-    // hs_sayHello receives CString and returns a newly allocated CString.
+    // hs_sayHello receives CString and returns a newly allocated CString
     const resultPtr = func(inputPtr);
 
-    // Find the C string's terminating null byte.
+    // find the C string's terminating null byte
     const resultMemory = new Uint8Array(
         inst.exports.memory.buffer,
         resultPtr
@@ -53,7 +53,7 @@ function callWithString(func, str) {
         )
     );
 
-    // Release both allocations in the Haskell/WASM heap.
+    // release both allocations in the Haskell/WASM heap
     inst.exports.freeBuffer(inputPtr);
     inst.exports.freeBuffer(resultPtr);
 
