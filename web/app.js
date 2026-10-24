@@ -1,9 +1,8 @@
 import { WASI } from "https://cdn.jsdelivr.net/npm/@bjorn3/browser_wasi_shim@0.3.0/+esm";
 
-const input = document.getElementById("url");
-const button = document.getElementById("downloadButton");
+const input = document.getElementById("name");
+const button = document.getElementById("helloButton");
 const output = document.getElementById("output");
-const status = document.getElementById("status");
 
 const wasi = new WASI([], [], []);
 
@@ -61,99 +60,24 @@ function callWithString(func, str) {
     return result;
 }
 
-// extract the last number from a URL
-function extractNumberFromUrl(url) {
-    const matches = url.match(/(\d+)(?!.*\d)/);
-    return matches ? parseInt(matches[1]) : null;
-}
+function sayHello() {
+    const name = input.value.trim();
 
-// replace the last number in a URL with a new value
-function replaceNumberInUrl(url, newNumber) {
-    return url.replace(/(\d+)(?!.*\d)/, newNumber.toString());
-}
-
-// fetch a page through proxy
-async function fetchPage(url) {
-    const proxyUrl = `/proxy?url=${encodeURIComponent(url)}`;
-    const response = await fetch(proxyUrl);
-    if (!response.ok) {
-        throw new Error(`HTTP ${response.status} for ${url}`);
-    }
-    return await response.text();
-}
-
-// main download loop
-async function downloadSeries(startUrl) {
-    const pages = [];
-    let currentUrl = startUrl;
-    let currentNumber = extractNumberFromUrl(startUrl);
-    
-    if (currentNumber === null) {
-        throw new Error("URL must contain a number");
-    }
-    
-    let previousContent = null;
-    let maxPages = 3; // safety limit for testing
-    
-    for (let i = 0; i < maxPages; i++) {
-        status.textContent = `Downloading page ${i + 1}: ${currentUrl}`;
-        
-        const content = await fetchPage(currentUrl);
-        pages.push(content);
-        
-        // check if content is same as previous
-        // TODO: This does not work as a stop condition!
-        if (previousContent !== null && content === previousContent) {
-            status.textContent = `Stopped: page ${i + 1} has same content as page ${i}`;
-            break;
-        }
-        
-        previousContent = content;
-        currentNumber++;
-        currentUrl = replaceNumberInUrl(currentUrl, currentNumber);
-        // sleep
-        await new Promise(r => setTimeout(r, 2000));
-    }
-    
-    return pages;
-}
-
-function processPagesWithHaskell(pages) {
-    const delimiter = "\n---PAGE_BREAK---\n";
-    const combinedContent = pages.join(delimiter);
-    return callWithString(inst.exports.hs_processPages, combinedContent);
-}
-
-// button handler
-async function handleDownload() {
-    const url = input.value.trim();
-    
-    if (url === "") {
-        output.textContent = "Please enter a URL.";
+    if (name === "") {
+        output.textContent = "Please enter a name.";
         return;
     }
-    
-    try {
-        button.disabled = true;
-        output.textContent = "";
-        const pages = await downloadSeries(url);
-        status.textContent = `Downloaded ${pages.length} pages. Processing with Haskell...`;
-        const result = processPagesWithHaskell(pages);
-        output.textContent = result;
-        status.textContent = `Processed ${pages.length} pages successfully.`;
-        
-    } catch (error) {
-        output.textContent = `Error: ${error.message}`;
-        status.textContent = "Download failed.";
-    } finally {
-        button.disabled = false;
-    }
+
+    output.textContent = callWithString(
+        inst.exports.hs_sayHello,
+        name
+    );
 }
 
-button.addEventListener("click", handleDownload);
+button.addEventListener("click", sayHello);
 
 input.addEventListener("keydown", (event) => {
     if (event.key === "Enter") {
-        handleDownload();
+        sayHello();
     }
 });
