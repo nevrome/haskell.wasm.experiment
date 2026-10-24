@@ -1,9 +1,12 @@
-# install ghc-wasm
+### Test repository: Compiling Haskell to WebAssembly and using it in a WebApp
 
-https://www.tushar-adhatrao.in/blogs/haskell_to_wasm.html
-https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta
+Following these resources:
+- https://www.tushar-adhatrao.in/blogs/haskell_to_wasm.html
+- https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta
 
-Install with ghcup:
+#### Setup
+
+1. Install with the wasm version of GHC with ghcup:
 
 ```
 curl https://gitlab.haskell.org/haskell-wasm/ghc-wasm-meta/-/raw/master/bootstrap.sh | SKIP_GHC=1 sh
@@ -12,12 +15,13 @@ ghcup config add-release-channel https://gitlab.haskell.org/haskell-wasm/ghc-was
 ghcup install ghc wasm32-wasi-9.14 -- $CONFIGURE_ARGS
 ```
 
-Test installation:
+2. Test installation:
 ```
 wasm32-wasi-ghc-9.14 --version
 ```
 
-Build project:
+3. Build this project and run the WebApp:
+
 ```
 make wasm
 make serve
